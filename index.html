@@ -777,8 +777,14 @@
   .modal .corner.tr{top:16px;right:16px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
   .modal .corner.bl{bottom:16px;left:16px;border-right:0;border-top:0;border-radius:0 0 0 6px}
   .modal .corner.br{bottom:16px;right:16px;border-left:0;border-top:0;border-radius:0 0 6px 0}
-  .modal .x{position:absolute;top:13px;right:16px;border:0;background:none;font-size:24px;
+  /* area di tocco 44x44, simbolo nella stessa posizione di prima */
+  .modal .x{position:absolute;top:4px;right:7px;width:44px;height:44px;padding:0;
+    display:flex;align-items:center;justify-content:center;border:0;background:none;font-size:24px;
     color:var(--muted);cursor:pointer;line-height:1;z-index:2}
+  /* anello di focus della stessa misura di prima (26x26), non dell'area di tocco */
+  .modal .x:focus-visible{outline:none}
+  .modal .x:focus-visible::after{content:"";position:absolute;inset:9px;
+    outline:auto 1px;outline:-webkit-focus-ring-color auto 1px}
   .modal .big{width:172px;height:172px;border-radius:50%;margin:4px auto 16px;position:relative;
     box-shadow:0 0 0 1px rgba(124,106,42,.6),0 0 0 5px #faf4e6,0 0 0 6px rgba(124,106,42,.32),
     0 12px 24px -8px rgba(60,45,20,.5)}
@@ -816,6 +822,10 @@
   .cred-people p{margin:0 0 13px}
   .cred-people p:last-child{margin-bottom:0}
   .body a{color:var(--wine);text-decoration:underline;text-underline-offset:2px}
+
+  /* testo solo per screen reader */
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
   .t-mob{display:none}
   .t-full{display:block;transform:translateY(3px)}
@@ -878,22 +888,23 @@
   <div class="hint">Dietro ogni volto, una storia. Cliccaci sopra per scoprirla.</div>
 </header>
 
-<div class="viewport" id="vp">
+<main class="viewport" id="vp" aria-label="Albero genealogico">
+  <p class="sr-only">Albero genealogico interattivo della famiglia Rinonapoli, con <span id="nPeople">29</span> persone dai capostipiti alle generazioni più recenti. Per ogni persona sono indicati le date, i genitori e il coniuge. Usa Tab per spostarti tra le persone e Invio per aprirne la scheda. Con i tasti più e meno cambi lo zoom, con le frecce sposti l'albero e con zero torni alla vista iniziale.</p>
   <div class="content" id="content">
-    <svg class="links" id="links"></svg>
+    <svg class="links" id="links" aria-hidden="true"></svg>
     <div class="tree" id="tree"></div>
   </div>
-</div>
+</main>
 
-<div class="ctrls">
+<div class="ctrls" role="group" aria-label="Zoom">
   <button id="zin" title="Zoom +" aria-label="Aumenta lo zoom">+</button>
   <button id="zout" title="Zoom −" aria-label="Riduci lo zoom">−</button>
   <button id="zfit" title="Torna alla vista iniziale" aria-label="Torna alla vista iniziale">↺</button>
 </div>
 
-<div class="ov" id="ov"><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"></div></div>
+<div class="ov" id="ov" inert aria-hidden="true"><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"></div></div>
 
-<div class="footer">Copyright 2026. <button class="credits-link" onclick="openCredits()">Realizzato da Luca Rinonapoli e Filippo Sallusto</button></div>
+<footer class="footer">Copyright 2026. <button class="credits-link" onclick="openCredits()">Realizzato da Luca Rinonapoli e Filippo Sallusto</button></footer>
 
 <script>
 const PEOPLE={"nicola-rino": {"id": "nicola-rino", "name": "Nicola Rino", "sp": false, "y1": "?", "y2": "?", "body": "Mastro d'atti del Sacro Regio Consiglio\n\nNato: ???\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/nicola-rino.webp"}, "cristina-napoli": {"id": "cristina-napoli", "name": "Cristina Napoli", "sp": true, "y1": "?", "y2": "?", "body": "Nata: ???\nMorta: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/cristina-napoli.webp"}, "francesco-rinonapoli": {"id": "francesco-rinonapoli", "name": "Francesco Rinonapoli", "sp": false, "y1": "?", "y2": "1825", "body": "Mastro d'atti del Sacro Regio Consiglio\n\nNato: ???\nMorto: 1825", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/francesco-rinonapoli.webp"}, "raffaela-quaranta": {"id": "raffaela-quaranta", "name": "Raffaela Quaranta (Rachele)", "sp": true, "y1": "?", "y2": "?", "body": "Figlia di Marcantonio, maestro d'atti S.R.C.\n\nNata: ???\nMorta: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/raffaela-quaranta.webp"}, "giuseppe-ferdinando-rinonapoli": {"id": "giuseppe-ferdinando-rinonapoli", "name": "Giuseppe Ferdinando Rinonapoli", "sp": false, "y1": "1784", "y2": "1871", "body": "Avvocato. Il quadro è stato realizzato dal pittore Brandi, docente dell'Accademia Belle Arti di Napoli, partendo da un ritratto disegnato da suo figlio Michele Rinonapoli. Domiciliato in Vico S.Maria del Refugio\n\nNato: 08/01/1784\nMorto: 13/01/1871", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/giuseppe-ferdinando-rinonapoli.webp"}, "maria-antonia-fiore": {"id": "maria-antonia-fiore", "name": "Maria Antonia Fiore", "sp": true, "y1": "1782", "y2": "1857", "body": "Figlia di Nicola e Mariantonia Pennella\n\nNata: 22/01/1782\nMorta: 28/12/1857", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/maria-antonia-fiore.webp"}, "raffaele-rinonapoli": {"id": "raffaele-rinonapoli", "name": "Raffaele Rinonapoli", "sp": false, "y1": "1781", "y2": "1812", "body": "Mastro d'atti del Sacro Regio Consiglio\n\nNato: 1781\nMorto: 1812", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/raffaele-rinonapoli.webp"}, "gabriele-rinonapoli": {"id": "gabriele-rinonapoli", "name": "Gabriele Rinonapoli", "sp": false, "y1": "1812", "y2": "1896", "body": "Parroco di S. Maria Apparente\nProfessore di filosofia e diritto\n\nNato: 30/05/1812\nMorto: 11/01/1896", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/gabriele-rinonapoli.webp"}, "michele-rinonapoli": {"id": "michele-rinonapoli", "name": "Michele Rinonapoli", "sp": false, "y1": "1818", "y2": "1907", "body": "Professore di matematica e fisica alla Nunziatella e astronomo alla Reale Specola di Capodimonte (poi Osservatorio astronomico di Capodimonte). Porta le decorazioni di San Maurizio al Lazzaro; accademico pontaniano, ne fu anche segretario.\n\nL'originale di questo quadro è del pittore Filippo De Falco (1852-1926), Conservatore e Ispettore dell'Istituto di Belle Arti di Napoli, figlio di Carlo, ritrattista ufficiale dei Borbone. Apparteneva al primogenito Michele Rinonapoli.\n\nUmberto Rinonapoli, per aiutare il pittore Brandi, gli fece fare la copia e poi anche sviluppare il quadro del padre.\n\nNato: 18/02/1818\nMorto: 01/09/1907 in via Ponte di Chiaia, 95", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/michele-rinonapoli.webp"}, "carmela-rinonapoli-1825": {"id": "carmela-rinonapoli-1825", "name": "Carmela Rinonapoli", "sp": false, "y1": "1825", "y2": "?", "body": "Nata: 1825\nMorta: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/carmela-rinonapoli-1825.webp"}, "concetta-de-cristofaro": {"id": "concetta-de-cristofaro", "name": "Concetta De Cristofaro", "sp": true, "y1": "1827", "y2": "1897", "body": "Figlia di Don Giuseppe, Capo Dipartimento del Ministero di Polizia a Napoli e di Raffaela De Paolis.\n\nNata: 09/07/1827\nMorta: 21/01/1897", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/concetta-de-cristofaro.webp"}, "anna-rinonapoli": {"id": "anna-rinonapoli", "name": "Anna Rinonapoli", "sp": false, "y1": "1851", "y2": "1921", "body": "Sposata con Michele Attolini, nobile di Basilicata\n\nNata: 22/04/1851 a Napoli\nMorta: ??/08/1921 a Taranto", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/anna-rinonapoli.webp"}, "giuseppe-rinonapoli": {"id": "giuseppe-rinonapoli", "name": "Giuseppe Rinonapoli", "sp": false, "y1": "1853", "y2": "1931", "body": "Ingegnere, Professore di disegno nel Regio Istituto delle Belle Arti di Napoli.\nÈ stato uno dei progettisti della Funicolare di Chiaia.\n\nPrimo matrimonio con Amalia Carbone (a S. Ferdinando il 06/03/1882); secondo con Genieffa Emma Gioia (1887).\n\nQuesto quadro è stato fatto dal pittore Brandi, che ha realizzato anche quello della moglie. Riposa insieme al padre al Recinto degli uomini illustri a Napoli (Congrega Monte Verginella).\n\nNato: 13/05/1853 a Napoli (Vico 2° S. Giacomo n° 9\nMorto: 19/03/1931 a Napoli", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/giuseppe-rinonapoli.webp"}, "emmanuele-rinonapoli": {"id": "emmanuele-rinonapoli", "name": "Emmanuele Rinonapoli", "sp": false, "y1": "1858", "y2": "1932", "body": "Medico chirurgo. Dal 1887 fu medico condotto nel comune di Collarmele, dove abitò in via del Popolo. I risultati delle sue ricerche e il successo dei suoi interventi chirurgici, alcuni di carattere pionieristico, giunsero all'attenzione di riviste e accademie internazionali. Per i suoi meriti di scienziato fu nominato socio corrispondente della Reale Accademia Medico-Chirurgica di Napoli. Nel 1888 il vice segretario dell'Accademia, Francesco Frusci, scrisse di lui: «Un premio al D.r Rinonapoli parmi debba servire di incoraggiamento ai medici condotti, dimostrando ad essi come, pur nella loro modesta posizione, possano riuscire utili non solo all'università ma anche alla scienza e divenir meritevoli di encomio e di ricordanza.» Nel 2026 il Comune di Collarmele gli ha dedicato una targa in via del Popolo.\n\nNato: 09/02/1858 a Santa Anastasia (sotto il Vesuvio)\nMorto: 1932", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/emmanuele-rinonapoli.webp"}, "vincenzo-rinonapoli": {"id": "vincenzo-rinonapoli", "name": "Vincenzo Rinonapoli", "sp": false, "y1": "1860", "y2": "?", "body": "Nato: 29/06/1860\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/vincenzo-rinonapoli.webp"}, "giovanni-rinonapoli": {"id": "giovanni-rinonapoli", "name": "Giovanni Rinonapoli", "sp": false, "y1": "1863", "y2": "?", "body": "Impiegato all'Arsenale della Regia Marina\n\nNato: 08/02/1863\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/giovanni-rinonapoli.webp"}, "luigi-rinonapoli": {"id": "luigi-rinonapoli", "name": "Luigi Rinonapoli", "sp": false, "y1": "1865", "y2": "?", "body": "Era il gemello di Carmela\n\nNato: 02/02/1865\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/luigi-rinonapoli.webp"}, "carmela-rinonapoli-1865": {"id": "carmela-rinonapoli-1865", "name": "Carmela Rinonapoli", "sp": false, "y1": "1865", "y2": "1867", "body": "Nata: 02/02/1865\nMorta: 1867", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/carmela-rinonapoli-1865.webp"}, "genieffa-emma-gioia": {"id": "genieffa-emma-gioia", "name": "Genieffa Emma Gioia (detta Emma)", "sp": true, "y1": "1865", "y2": "1962", "body": "Nata: 28/05/1865 a Gaeta da Don Lorenzo Gioia e Civita Giordano (Civita, nonostante il cognome, veniva da una famiglia ducale di Capua, secondo una notizia di Claudia, figlia di Michele.)\nSi sposò con Giuseppe nel Duomo di Gaeta il 28/05/1887. I Gioia possedevano un palazzo di origine medievale che adibivano parzialmente ad albergo. Lì fu ospitato Giuseppe Mazzini quando, presa Roma il 20/09/1870, fu liberato dal carcere.\nMorta: 20/09/1962 a Roma, a casa del figlio Michele, alla veneranda età di 97 anni e 4 mesi.", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/genieffa-emma-gioia.webp"}, "ettore-rinonapoli": {"id": "ettore-rinonapoli", "name": "Ettore Rinonapoli", "sp": false, "y1": "1879", "y2": "1917", "body": "Figlio di primo letto di Giuseppe ed Amalia Carbone, legittimato con il loro matrimonio (1882).\n\nNato: 28/07/1879\nMorto: 1917 (malattia di guerra)", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/ettore-rinonapoli.webp"}, "ines-rinonapoli": {"id": "ines-rinonapoli", "name": "Ines Rinonapoli", "sp": false, "y1": "?", "y2": "†", "body": "Nata: ???\nMorta: Tenera età", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/ines-rinonapoli.webp"}, "michele-rinonapoli-jr": {"id": "michele-rinonapoli-jr", "name": "Michele Rinonapoli", "sp": false, "y1": "1889", "y2": "1959", "body": "Matematico e buon cultore di chitarra classica.\n\nNato: 28/12/1889 a Napoli\nMorto: 23/05/1959 a Roma", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/michele-rinonapoli-jr.webp"}, "gino-rinonapoli": {"id": "gino-rinonapoli", "name": "Gino Rinonapoli", "sp": false, "y1": "?", "y2": "†", "body": "Nato: ???\nMorto: Tenera età", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/gino-rinonapoli.webp"}, "umberto-rinonapoli": {"id": "umberto-rinonapoli", "name": "Umberto Rinonapoli", "sp": false, "y1": "1892", "y2": "1983", "body": "Nato: 24/06/1892 a Napoli\nMorto: 06/02/1983 a Milano\nÈ stato un economista, pubblicista, direttore della Camera di Commercio di Bari fino al 1939.", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/umberto-rinonapoli.webp"}, "bianca-rinonapoli": {"id": "bianca-rinonapoli", "name": "Bianca Rinonapoli", "sp": false, "y1": "?", "y2": "†", "body": "Nata: ???\nMorta: Tenera età", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/bianca-rinonapoli.webp"}, "maria-rinonapoli": {"id": "maria-rinonapoli", "name": "Maria Rinonapoli", "sp": false, "y1": "1896", "y2": "1948", "body": "Nata: 1896 a Napoli\nMorta: 1948\nConiugata Gambardella, non ebbe figli. Aveva un titolo di studio e lavorava in ambito economico, aveva una personalità frizzante.", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/maria-rinonapoli.webp"}, "renato-rinonapoli": {"id": "renato-rinonapoli", "name": "Renato Rinonapoli", "sp": false, "y1": "1897", "y2": "1957", "body": "Ispettore delle Assicurazioni Generali. Coniugato con Caterina Gerace.\n\nNato: 29/04/1897\nMorto: 23/12/1957", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/renato-rinonapoli.webp"}, "guido-rinonapoli": {"id": "guido-rinonapoli", "name": "Guido Rinonapoli", "sp": false, "y1": "?", "y2": "?", "body": "Nato: ???\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/guido-rinonapoli.webp"}, "emanuele-rinonapoli": {"id": "emanuele-rinonapoli", "name": "Emanuele Rinonapoli", "sp": false, "y1": "1904", "y2": "1985", "body": "Collaboratore degli ufficiali giudiziari.\n\nNato: 23/09/1904 a S. Anastasia\nMorto: 1985", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/emanuele-rinonapoli.webp"}};
@@ -905,6 +916,32 @@ function hasStory(p){
   return (p.body||'').split('\n').map(l=>l.trim())
     .some(l=>l && !/^(Nat[oa]:|Mort[oa]:)/.test(l));
 }
+// ritratti: sul sito pubblicato si caricano dalla stessa origine (images/...), con ripiego sull'URL raw di GitHub
+const RAW='https://raw.githubusercontent.com/lvcar/albero_genealogico/main/';
+const SAME_ORIGIN=/(^|\.)lucarinonapoli\.com$/.test(location.hostname);
+function imgTag(u,alt){
+  const s=SAME_ORIGIN&&u.startsWith(RAW)?u.slice(RAW.length):u;
+  return `<img src="${s}" alt="${alt}"${s!==u?` onerror="this.onerror=null;this.src='${u}'"`:''}>`;
+}
+// legami di parentela ricavati dal TREE, per il nome accessibile delle card
+const REL={};
+(function walk(n,parents){
+  REL[n.p]={parents,spouse:n.s||null};
+  if(n.s) REL[n.s]={parents:null,spouse:n.p};
+  const ps=n.s?[n.p,n.s]:[n.p];
+  (n.c||[]).forEach(c=>walk(c,ps));
+})(TREE,null);
+function cardLabel(id,story){
+  const p=PEOPLE[id], r=REL[id]||{}, nm=x=>PEOPLE[x].name;
+  const parts=[p.name];
+  if(p.y1==='?'&&p.y2==='?') parts.push('date non note');
+  else parts.push('nascita '+(p.y1==='?'?'non nota':p.y1)+', morte '+(p.y2==='†'?'in tenera età':p.y2==='?'?'non nota':p.y2));
+  if(r.parents) parts.push('genitori: '+r.parents.map(nm).join(' e '));
+  if(r.spouse) parts.push('coniuge: '+nm(r.spouse));
+  parts.push(story?'apri la biografia':'apri la scheda');
+  return parts.join(', ');
+}
+document.getElementById('nPeople').textContent=Object.keys(PEOPLE).length;
 const BOOK='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.2c2.6-.8 6.2-.5 9 1.1 2.8-1.6 6.4-1.9 9-1.1v12.9c-2.6-.8-6.2-.5-9 1.1-2.8-1.6-6.4-1.9-9-1.1V5.2z"/><path d="M12 6.3v12.9"/></svg>';
 function card(id){
   const p=PEOPLE[id];
@@ -913,11 +950,11 @@ function card(id){
   el.className='card'+(p.sp?' sp':'');
   el.dataset.id=id;
   el.tabIndex=0; el.setAttribute('role','button');
-  el.setAttribute('aria-label',(story?'Apri la biografia di ':'Apri la scheda di ')+p.name);
+  el.setAttribute('aria-label',cardLabel(id,story));
   el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(id); } });
   const yr = p.y2==='†' ? '✝ in tenera età'
            : (p.y1==='?'&&p.y2==='?') ? '' : `${p.y1} – ${p.y2}`;
-  el.innerHTML=`<div class="ph"><img src="${p.img}" alt="${p.name}"></div>
+  el.innerHTML=`<div class="ph">${imgTag(p.img,p.name)}</div>
     ${p.sp?'<div class="sp-badge" title="Sposata nella famiglia Rinonapoli">⚭</div>':''}
     <div class="nm">${p.name}</div>${yr?`<div class="yr">${yr}</div>`:''}${story?`<span class="story" title="C'è una biografia">${BOOK}</span>`:''}`;
   return el;
@@ -1039,7 +1076,7 @@ function fit(){
 window.addEventListener('load',()=>{document.fonts.ready.then(fit)});
 window.addEventListener('resize',fit);
 
-let dragging=false,moved=false,sx,sy,stx,sty,downCard=null,tapTol=6,modalOpenedAt=0;
+let dragging=false,moved=false,sx,sy,stx,sty,downCard=null,tapTol=6,modalOpenedAt=0,lastTap=null;
 const ptrs=new Map(); let pinch=null;
 const pdist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 vp.addEventListener('pointerdown',e=>{
@@ -1077,6 +1114,12 @@ function endPtr(e){
   if(dragging){
     dragging=false;vp.classList.remove('drag');
     if(!moved&&downCard)openModal(downCard.dataset.id);
+    else if(!moved&&e.pointerType==='touch'){   // doppio tocco sullo sfondo: zoom (al massimo torna alla vista iniziale)
+      const now=Date.now();
+      if(lastTap&&now-lastTap.t<320&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<30){
+        lastTap=null; if(scale>=2.3) fit(); else zoomAt(2,e.clientX,e.clientY);
+      } else lastTap={t:now,x:e.clientX,y:e.clientY};
+    }
     downCard=null;
   }
 }
@@ -1091,6 +1134,21 @@ function zoom(f){const r=vp.getBoundingClientRect(),mx=r.width/2,my=r.height/2;
   const ns=Math.min(2.4,Math.max(0.18,scale*f));
   tx=mx-(mx-tx)*(ns/scale);ty=my-(my-ty)*(ns/scale);scale=ns;
   content.classList.add('anim');clampPan();apply();setTimeout(()=>content.classList.remove('anim'),300)}
+function animTo(){content.classList.add('anim');clampPan();apply();setTimeout(()=>content.classList.remove('anim'),300)}
+function zoomAt(f,cx,cy){const r=vp.getBoundingClientRect(),mx=cx-r.left,my=cy-r.top;
+  const ns=Math.min(2.4,Math.max(0.18,scale*f));
+  tx=mx-(mx-tx)*(ns/scale);ty=my-(my-ty)*(ns/scale);scale=ns;animTo()}
+function pan(dx,dy){tx+=dx;ty+=dy;animTo()}
+// tastiera: la card che riceve il focus viene portata in vista se è fuori schermo
+vp.addEventListener('focusin',e=>{
+  const c=e.target.closest('.card'); if(!c||!c.matches(':focus-visible')) return;
+  document.documentElement.scrollTop=document.body.scrollTop=0; vp.scrollTop=vp.scrollLeft=0;
+  const r=c.getBoundingClientRect(), v=vp.getBoundingClientRect(), desk=innerWidth>640;
+  const top=Math.max(v.top,0)+(desk?72:8), bottom=Math.min(v.bottom,innerHeight)-(desk?72:8);
+  const left=Math.max(v.left,0)+8, right=Math.min(v.right,innerWidth)-(desk?72:8);
+  if(r.top>=top&&r.bottom<=bottom&&r.left>=left&&r.right<=right) return;
+  pan((left+right)/2-(r.left+r.width/2),(top+bottom)/2-(r.top+r.height/2));
+});
 document.getElementById('zin').onclick=()=>zoom(1.2);
 document.getElementById('zout').onclick=()=>zoom(0.83);
 document.getElementById('zfit').onclick=()=>fit();
@@ -1130,10 +1188,10 @@ function openModal(id){
   const p=PEOPLE[id]; lastFocused=document.activeElement;
   modal.classList.remove('wide','roomy'); modal.style.width='';
   modal.innerHTML=`${CORNERS}<button class="x" onclick="closeModal()" aria-label="Chiudi">×</button>
-    <div class="big"><img src="${p.img}" alt=""></div>
+    <div class="big">${imgTag(p.img,'')}</div>
     <h2 id="modalTitle" class="${p.sp?'sp':''}">${p.name}</h2>
     <div class="body">${renderBody(p.body)}</div>`;
-  ov.classList.add('open'); modalOpenedAt=Date.now();
+  ov.classList.add('open'); setBgInert(true); modalOpenedAt=Date.now();
   sizeBioModal();
   modal.focus();
 }
@@ -1141,7 +1199,7 @@ function openCredits(){
   lastFocused=document.activeElement; modal.classList.remove('roomy'); modal.classList.add('wide'); modal.style.width='';
   modal.innerHTML=`${CORNERS}<button class="x" onclick="closeModal()" aria-label="Chiudi">×</button>
     <div class="credits-row">
-      <div class="credimg"><img src="https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/Io%20e%20Filippo.webp" alt="Luca e Filippo"></div>
+      <div class="credimg">${imgTag(RAW+'images/Io%20e%20Filippo.webp','Luca e Filippo')}</div>
       <div class="credits-txt">
         <h2 id="modalTitle">Gli autori</h2>
         <div class="body">
@@ -1154,12 +1212,30 @@ function openCredits(){
         </div>
       </div>
     </div>`;
-  ov.classList.add('open'); modalOpenedAt=Date.now(); ov.scrollTop=0; modal.focus();
+  ov.classList.add('open'); setBgInert(true); modalOpenedAt=Date.now(); ov.scrollTop=0; modal.focus();
 }
-function closeModal(){ov.classList.remove('open'); if(lastFocused&&lastFocused.focus){lastFocused.focus();} lastFocused=null;}
+// a scheda aperta il resto della pagina non è raggiungibile; a scheda chiusa la scheda non lo è
+const BG=[...document.querySelectorAll('.wm, header.topbar, #vp, .ctrls, footer.footer')];
+function setBgInert(on){
+  BG.forEach(el=>{el.inert=on;});
+  ov.inert=!on; if(on) ov.removeAttribute('aria-hidden'); else ov.setAttribute('aria-hidden','true');
+}
+function closeModal(){ov.classList.remove('open'); setBgInert(false); if(lastFocused&&lastFocused.focus){lastFocused.focus();} lastFocused=null;}
 ov.addEventListener('click',e=>{if(e.target===ov && Date.now()-modalOpenedAt>350)closeModal()});
 document.addEventListener('keydown',e=>{
-  if(!ov.classList.contains('open')) return;
+  if(!ov.classList.contains('open')){          // tastiera sull'albero: + e - zoom, 0 vista iniziale, frecce spostano
+    if(e.ctrlKey||e.metaKey||e.altKey) return;
+    const k=e.key, s=80;
+    if(k==='+'||k==='=') zoom(1.2);
+    else if(k==='-'||k==='_') zoom(0.83);
+    else if(k==='0') fit();
+    else if(k==='ArrowLeft') pan(s,0);
+    else if(k==='ArrowRight') pan(-s,0);
+    else if(k==='ArrowUp') pan(0,s);
+    else if(k==='ArrowDown') pan(0,-s);
+    else return;
+    e.preventDefault(); return;
+  }
   if(e.key==='Escape'){closeModal(); return;}
   if(e.key==='Tab'){
     const f=modal.querySelectorAll('a[href],button,[tabindex]:not([tabindex="-1"])');
