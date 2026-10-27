@@ -726,12 +726,18 @@
   .card:hover{transform:translateY(-3px);border-color:var(--gold);
     box-shadow:0 20px 34px -14px var(--shadow),0 3px 8px -3px var(--shadow)}
   .card .ph{width:108px;height:108px;border-radius:50%;margin:0 auto 13px;overflow:hidden;
-    box-shadow:0 0 0 2.5px var(--frame),0 4px 10px -3px var(--shadow)}
+    position:relative;background:var(--frame);box-shadow:0 4px 10px -3px var(--shadow)}
   .card .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  /* anello disegnato sopra il bordo della foto: accostato lascerebbe un filo chiaro di antialias */
+  .card .ph::after,.modal .big::after{content:"";position:absolute;inset:0;border-radius:50%;
+    border:3px solid var(--frame);pointer-events:none}
+  .modal .big::after{border-width:4px}
   /* ritratto che esce dalla cornice: tela 1400x1400 con il disco 1000x1000 al centro */
   .card .ph.pop,.modal .big.pop{overflow:visible}
   .card .ph.pop img,.modal .big.pop img{position:relative;left:-20%;top:-20%;width:140%;height:140%;max-width:none;
     border-radius:0;box-shadow:none}
+  /* senza ritaglio la foto può sbordare di mezzo pixel: l'anello la copre */
+  .card .ph.pop::after,.modal .big.pop::after{inset:-1px}
   .card .nm{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;line-height:1.18;
     color:#241d0f;letter-spacing:.006em}
   .card.sp .nm{color:var(--wine)}
@@ -791,7 +797,7 @@
   .modal .x:focus-visible::after{content:"";position:absolute;inset:9px;
     outline:auto 1px;outline:-webkit-focus-ring-color auto 1px}
   .modal .big{width:172px;height:172px;border-radius:50%;margin:4px auto 16px;position:relative;
-    box-shadow:0 0 0 3.5px var(--frame),0 12px 24px -8px rgba(60,45,20,.5)}
+    background:var(--frame);box-shadow:0 12px 24px -8px rgba(60,45,20,.5)}
   .modal .big img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;
     box-shadow:inset 0 2px 12px rgba(40,28,10,.5)}
   .modal h2{font-family:'Cormorant Garamond',serif;text-align:center;font-weight:700;font-size:29px;
