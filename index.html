@@ -672,177 +672,359 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
+  /* =====================================================================
+     DESIGN SYSTEM - Origini Rinonapoli, organizzato secondo l'Atomic Design
+     di Brad Frost. Si legge dall'alto in basso, dal più piccolo al più grande:
+       0. Token      colori, font, misure, ombre, movimento (le "impostazioni globali")
+       1. Fondamenta reset, carattere e sfondo pergamena
+       2. Atomi      i pezzi indivisibili: ritratto, nome, date, badge, pulsanti...
+       3. Molecole   atomi uniti con uno scopo: card persona, marchio, testo della scheda...
+       4. Organismi  sezioni complete: barra in alto, albero, scheda persona, scheda crediti
+       5. Template   la disposizione delle regioni nella pagina, desktop e telefono
+       6. Pagina     l'istanza reale: i dati PEOPLE, TREE e POP nello script
+     Ogni livello usa solo i token e i livelli sopra di lui. Ogni componente porta con
+     sé le sue regole per tablet e telefono. Guida completa: BRAND.md nel progetto.
+     ===================================================================== */
+
+  /* =================== 0. TOKEN =================== */
   :root{
-    --ink:#2c2419; --muted:#554e3e; --gold:#7c6a2a; --gold-d:#5d4f1d;
-    --wine:#9c2a5c; --line:#8a7d62; --card:#f6efde; --card-edge:#cfc3a3;
-    --shadow:rgba(60,45,20,.28); --frame:#4a3826;
+    /* --- Colori di marca --- */
+    --ink:#2c2419;          /* testo base */
+    --ink-strong:#26200f;   /* titolo della scheda, grassetti */
+    --ink-name:#241d0f;     /* nomi sulle card */
+    --ink-soft:#3c3424;     /* testo delle biografie */
+    --ink-plate:#3a3324;    /* testo della targhetta in basso */
+    --muted:#554e3e;        /* date, suggerimento, × (contrasto AA) */
+    --gold:#7c6a2a;   --gold-rgb:124,106,42;   /* oro: hover, filetti, fregi */
+    --gold-d:#5d4f1d;       /* oro scuro: titolo, logo, icone, focus */
+    --wine:#9c2a5c;   --wine-rgb:156,42,92;    /* vino: solo le mogli entrate in famiglia e i link */
+    --line:#8a7d62;         /* connettori dell'albero */
+    --frame:#4a3826;        /* anello seppia dei ritratti */
+
+    /* --- Superfici (carta e pergamena) --- */
+    --paper:#f8f1e0;        /* card persona, cornice foto crediti */
+    --paper-wife:#f9f0e6;   /* card delle mogli */
+    --card:#f6efde;         /* pulsanti, rombo del legame, stacco del focus */
+    --card-edge:#cfc3a3;    /* bordi di card, pulsanti, scheda */
+    --modal-top:#faf4e6; --modal-bottom:#f2e9d3; --modal-hi:#fffaf0; --glow-rgb:255,250,240;
+    --parchment:#dccfac;    --parch-rgb:220,207,172;   /* sfondo pagina e barra in alto */
+    --parch-light-rgb:247,240,221; --parch-mid-rgb:214,198,160;
+    --sepia-rgb:120,95,55;  /* righe della pergamena e bordi delle barre */
+
+    /* --- Ombre --- */
+    --shadow-rgb:60,45,20; --deep-rgb:40,28,10; --overlay-rgb:40,30,15;
+    --shadow:rgba(var(--shadow-rgb),.28);
+    --sh-bar:0 8px 24px -18px var(--shadow);
+    --sh-card:0 12px 26px -14px var(--shadow),0 2px 6px -3px var(--shadow);
+    --sh-card-hover:0 20px 34px -14px var(--shadow),0 3px 8px -3px var(--shadow);
+    --sh-photo:0 10px 26px -12px var(--shadow),0 2px 6px -3px var(--shadow);
+    --sh-portrait:0 4px 10px -3px var(--shadow);
+    --sh-portrait-lg:0 12px 24px -8px rgba(var(--shadow-rgb),.5);
+    --sh-portrait-inset:inset 0 2px 12px rgba(var(--deep-rgb),.5);
+    --sh-float:0 8px 18px -9px var(--shadow);
+    --sh-plate:0 6px 16px -10px var(--shadow);
+    --sh-modal:0 34px 80px -32px rgba(var(--deep-rgb),.75),0 1px 0 var(--modal-hi) inset;
+    --focus-ring:0 0 0 3px var(--card),0 0 0 6px var(--gold-d);
+
+    /* --- Font --- */
+    --font-script:'Great Vibes',cursive;                 /* titolo del sito (desktop) */
+    --font-heading:'Cormorant Garamond',Georgia,serif;   /* nomi e titoli */
+    --font-body:'EB Garamond',Georgia,serif;             /* testi, date, pulsanti */
+    --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; /* targhetta */
+
+    /* --- Dimensioni del testo per ruolo --- */
+    --fs-site-title:36px; --fs-hint:16px;
+    --fs-name:22px; --fs-years:15px; --fs-badge:12px; --fs-ring:14px;
+    --fs-modal-title:29px; --fs-credits-title:32px;
+    --fs-text:19px; --lh-text:1.7; --fs-vital:18px; --fs-glyph:13px; --fs-credits-text:18px;
+    --fs-close:24px; --fs-ctrl:19px; --fs-ctrl-label:12px; --fs-footer:15px;
+
+    /* --- Misure dei componenti --- */
+    --card-w:170px; --portrait:108px; --portrait-lg:172px; --frame-w:3px; --frame-w-lg:4px;
+    --r-card:16px; --r-modal:18px; --r-modal-inner:12px; --r-ctrl:12px; --r-plate:9px;
+    --r-photo:14px; --r-photo-inner:8px; --badge:21px; --ctrl:44px;
+    --tree-gap:104px; --band-gap:16px; --couple-gap:14px; --pair-gap:32px;
+
+    /* --- Movimento --- */
+    --t-card:.18s ease; --t-ctrl:.15s; --t-overlay:.22s; --ease-pan:cubic-bezier(.22,.61,.36,1); --lift:-3px;
   }
+  /* token che cambiano con lo schermo: tablet, poi telefono */
+  @media (max-width:1024px){
+    :root{--fs-site-title:30px; --fs-hint:13px}
+  }
+  @media (max-width:640px){
+    :root{--fs-modal-title:24px; --fs-credits-title:24px; --fs-text:16px; --lh-text:1.6;
+      --fs-footer:12px; --portrait-lg:140px}
+  }
+
+  /* =================== 1. FONDAMENTA =================== */
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden;color:var(--ink);
-    font-family:'EB Garamond',Georgia,serif;-webkit-font-smoothing:antialiased}
+    font-family:var(--font-body);-webkit-font-smoothing:antialiased}
   body{
-    background-color:#dccfac;
+    background-color:var(--parchment);
     background-image:
-      radial-gradient(120% 90% at 50% 22%, rgba(247,240,221,.85), rgba(214,198,160,0) 60%),
-      radial-gradient(140% 120% at 50% 50%, rgba(60,45,20,0) 55%, rgba(60,45,20,.34) 100%),
-      repeating-linear-gradient(0deg, rgba(120,95,55,.05) 0 2px, transparent 2px 5px),
+      radial-gradient(120% 90% at 50% 22%, rgba(var(--parch-light-rgb),.85), rgba(var(--parch-mid-rgb),0) 60%),
+      radial-gradient(140% 120% at 50% 50%, rgba(var(--shadow-rgb),0) 55%, rgba(var(--shadow-rgb),.34) 100%),
+      repeating-linear-gradient(0deg, rgba(var(--sepia-rgb),.05) 0 2px, transparent 2px 5px),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
   }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+
+  /* =================== 2. ATOMI =================== */
+
+  /* --- Atomo: stemma in filigrana --- */
   .wm{position:fixed;right:10%;top:50%;transform:translateY(-50%);width:440px;max-width:30vw;
     opacity:.1;z-index:0;filter:sepia(.35) contrast(.92);pointer-events:none}
+  @media (max-width:1024px){
+    .wm{width:320px;max-width:36vw}
+  }
+  @media (max-width:640px){
+    .wm{width:440px;max-width:74vw;left:50%;right:auto;transform:translate(-50%,-50%);opacity:.11}
+  }
 
-  header.topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;
-    justify-content:space-between;gap:18px;padding:10px 26px;
-    background:linear-gradient(180deg,rgba(220,207,172,.97),rgba(220,207,172,.55));
-    backdrop-filter:blur(7px);border-bottom:1px solid rgba(120,95,55,.4);
-    box-shadow:0 8px 24px -18px var(--shadow)}
-  .brand{display:flex;align-items:center;gap:14px;min-width:0}
+  /* --- Atomo: logo alberello (e stemma per la barra, oggi non usato) --- */
   .tree-ico{height:38px;width:auto;flex-shrink:0;display:block}
   .crest{height:60px;width:auto;display:block;
-    filter:drop-shadow(0 3px 7px rgba(60,45,20,.4))}
-  .brand h1{margin:0;font-family:'Great Vibes',cursive;font-weight:400;letter-spacing:.01em;
-    color:var(--gold-d);font-size:36px;line-height:1;padding-bottom:4px}
-  .hint{color:var(--muted);font-style:italic;font-size:16px;line-height:1.4;text-align:right;flex-shrink:0}
+    filter:drop-shadow(0 3px 7px rgba(var(--shadow-rgb),.4))}
+  @media (max-width:640px){
+    .tree-ico{height:30px;width:auto}
+  }
 
-  .viewport{position:absolute;inset:0;z-index:1;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
-  .viewport.drag{cursor:grabbing}
-  .content{position:absolute;top:0;left:0;transform-origin:0 0;padding:118px 140px 90px}
-  .content.anim{transition:transform .3s cubic-bezier(.22,.61,.36,1)}
-  svg.links{position:absolute;top:0;left:0;overflow:visible;pointer-events:none;z-index:1}
+  /* --- Atomo: titolo del sito (corsivo su desktop, una riga su telefono) --- */
+  .brand h1{margin:0;font-family:var(--font-script);font-weight:400;letter-spacing:.01em;
+    color:var(--gold-d);font-size:var(--fs-site-title);line-height:1;padding-bottom:4px}
+  .t-mob{display:none}
+  .t-full{display:block;transform:translateY(3px)}
+  @media (max-width:640px){
+    .t-full{display:none}
+    .t-mob{display:block}
+    .brand h1{font-family:var(--font-heading);font-weight:600;font-style:normal;
+      font-size:clamp(16px,5.3vw,24px);line-height:1.16;letter-spacing:.004em;text-align:center;white-space:nowrap}
+  }
 
-  .tree{display:flex;flex-direction:column;align-items:center;gap:104px}
-  .band{display:flex;justify-content:center;align-items:flex-start;gap:16px}
-  .couple{display:flex;align-items:flex-start;gap:14px;position:relative;z-index:2;padding:0 3px}
-  .pair{margin:0 32px}
-  .ring{align-self:center;margin-top:-26px;width:6px;color:var(--wine);font-size:14px;opacity:.85;
-    text-align:center}
+  /* --- Atomo: suggerimento --- */
+  .hint{color:var(--muted);font-style:italic;font-size:var(--fs-hint);line-height:1.4;text-align:right;flex-shrink:0}
+  @media (max-width:640px){
+    .hint{display:none}
+  }
 
-  .card{width:170px;background:#f8f1e0;
-    border:1px solid var(--card-edge);border-radius:16px;padding:18px 14px 15px;text-align:center;
-    position:relative;z-index:2;cursor:pointer;
-    box-shadow:0 12px 26px -14px var(--shadow),0 2px 6px -3px var(--shadow);
-    transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
-  .card:hover{transform:translateY(-3px);border-color:var(--gold);
-    box-shadow:0 20px 34px -14px var(--shadow),0 3px 8px -3px var(--shadow)}
-  .card .ph{width:108px;height:108px;border-radius:50%;margin:0 auto 13px;overflow:hidden;
-    position:relative;background:var(--frame);box-shadow:0 4px 10px -3px var(--shadow)}
+  /* --- Atomo: ritratto (cerchio con anello seppia), nella card e nella scheda --- */
+  .card .ph{width:var(--portrait);height:var(--portrait);border-radius:50%;margin:0 auto 13px;overflow:hidden;
+    position:relative;background:var(--frame);box-shadow:var(--sh-portrait)}
   .card .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .modal .big{width:var(--portrait-lg);height:var(--portrait-lg);border-radius:50%;margin:4px auto 16px;position:relative;
+    background:var(--frame);box-shadow:var(--sh-portrait-lg)}
+  .modal .big img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;
+    box-shadow:var(--sh-portrait-inset)}
   /* anello disegnato sopra il bordo della foto: accostato lascerebbe un filo chiaro di antialias */
   .card .ph::after,.modal .big::after{content:"";position:absolute;inset:0;border-radius:50%;
-    border:3px solid var(--frame);pointer-events:none}
-  .modal .big::after{border-width:4px}
-  /* ritratto che esce dalla cornice: tela 1400x1400 con il disco 1000x1000 al centro */
+    border:var(--frame-w) solid var(--frame);pointer-events:none}
+  .modal .big::after{border-width:var(--frame-w-lg)}
+  /* variante pop, dettaglio che esce dalla cornice: tela 1400x1400 con il disco 1000x1000 al centro */
   .card .ph.pop,.modal .big.pop{overflow:visible}
   .card .ph.pop img,.modal .big.pop img{position:relative;left:-20%;top:-20%;width:140%;height:140%;max-width:none;
     border-radius:0;box-shadow:none}
   /* senza ritaglio la foto può sbordare di mezzo pixel: l'anello la copre */
   .card .ph.pop::after,.modal .big.pop::after{inset:-1px}
-  .card .nm{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;line-height:1.18;
-    color:#241d0f;letter-spacing:.006em}
+
+  /* --- Atomo: nome (vino per le mogli) --- */
+  .card .nm{font-family:var(--font-heading);font-weight:600;font-size:var(--fs-name);line-height:1.18;
+    color:var(--ink-name);letter-spacing:.006em}
   .card.sp .nm{color:var(--wine)}
-  .card .sp-badge{position:absolute;top:9px;right:9px;width:21px;height:21px;border-radius:50%;
-    background:rgba(156,42,92,.1);color:var(--wine);font-size:12px;line-height:1;
-    display:flex;align-items:center;justify-content:center;border:1px solid rgba(156,42,92,.32);
+
+  /* --- Atomo: date --- */
+  .card .yr{margin-top:9px;font-size:var(--fs-years);color:var(--muted);font-style:italic;letter-spacing:.02em}
+
+  /* --- Atomo: badge moglie ⚭ --- */
+  .card .sp-badge{position:absolute;top:9px;right:9px;width:var(--badge);height:var(--badge);border-radius:50%;
+    background:rgba(var(--wine-rgb),.1);color:var(--wine);font-size:var(--fs-badge);line-height:1;
+    display:flex;align-items:center;justify-content:center;border:1px solid rgba(var(--wine-rgb),.32);
     z-index:3}
-  .card.sp{background:#f9f0e6}
-  .card.sp::before{content:"";position:absolute;top:0;left:16px;right:16px;height:3px;border-radius:0 0 3px 3px;
-    background:linear-gradient(90deg,transparent,rgba(156,42,92,.55),transparent)}
-  .card .yr{margin-top:9px;font-size:15px;color:var(--muted);font-style:italic;letter-spacing:.02em}
-  .card:focus-visible{outline:none;box-shadow:0 0 0 3px var(--card),0 0 0 6px var(--gold-d)}
+
+  /* --- Atomo: icona biografia (libretto) --- */
   .card .story{display:block;margin-top:9px;line-height:0;color:var(--gold-d);opacity:.85}
   .card .story svg{display:block;margin:0 auto}
 
-  .ctrls{position:fixed;right:18px;bottom:18px;z-index:30;display:flex;flex-direction:column;gap:8px}
-  .ctrls button{width:44px;height:44px;border-radius:12px;border:1px solid var(--card-edge);
-    background:var(--card);color:var(--ink);font-size:19px;cursor:pointer;font-family:'EB Garamond',serif;
-    box-shadow:0 8px 18px -9px var(--shadow);transition:.15s}
+  /* --- Atomi del legame: segno tra i coniugi; linee, pallini e rombo disegnati da drawLinks() --- */
+  .ring{align-self:center;margin-top:-26px;width:6px;color:var(--wine);font-size:var(--fs-ring);opacity:.85;
+    text-align:center}
+  svg.links{position:absolute;top:0;left:0;overflow:visible;pointer-events:none;z-index:1}
+
+  /* --- Atomo: pulsante zoom --- */
+  .ctrls button{width:var(--ctrl);height:var(--ctrl);border-radius:var(--r-ctrl);border:1px solid var(--card-edge);
+    background:var(--card);color:var(--ink);font-size:var(--fs-ctrl);cursor:pointer;font-family:var(--font-body);
+    box-shadow:var(--sh-float);transition:var(--t-ctrl)}
   .ctrls button:hover{border-color:var(--gold);color:var(--gold-d)}
-  .ctrls .lbl{font-size:12px;font-style:italic}
+  .ctrls .lbl{font-size:var(--fs-ctrl-label);font-style:italic}
+  @media (max-width:640px){
+    .ctrls button{width:46px;height:46px;font-size:21px}
+  }
 
-  .footer{position:fixed;left:20px;bottom:16px;z-index:30;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    font-size:15px;font-weight:500;color:#3a3324;letter-spacing:.01em;
-    background:rgba(247,240,221,.78);border:1px solid rgba(120,95,55,.28);
-    padding:8px 14px;border-radius:9px;backdrop-filter:blur(3px);
-    box-shadow:0 6px 16px -10px var(--shadow)}
-
-  .ov{position:fixed;inset:0;z-index:40;background:rgba(40,30,15,.55);backdrop-filter:blur(5px);
-    display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;
-    overflow-y:auto;overscroll-behavior:contain;transition:opacity .22s}
-  .ov.open{opacity:1;pointer-events:auto}
-  .modal{width:min(470px,94vw);max-height:none;overflow:visible;margin:auto;position:relative;
-    background:
-      radial-gradient(120% 90% at 50% 0%, rgba(255,250,240,.7), rgba(255,250,240,0) 52%),
-      linear-gradient(180deg,#faf4e6,#f2e9d3);
-    border:1px solid var(--card-edge);
-    border-radius:18px;padding:32px 30px 28px;
-    box-shadow:0 34px 80px -32px rgba(40,28,10,.75),0 1px 0 #fffaf0 inset}
-  .modal.roomy{width:min(660px,94vw);padding:36px 44px 32px}
-  .modal:focus{outline:none}
-  .modal::before{content:"";position:absolute;inset:11px;border:1px solid rgba(124,106,42,.22);
-    border-radius:12px;pointer-events:none}
-  .modal .corner{position:absolute;width:16px;height:16px;border:1.4px solid rgba(124,106,42,.5);
-    pointer-events:none;opacity:.85}
-  .modal .corner.tl{top:16px;left:16px;border-right:0;border-bottom:0;border-radius:6px 0 0 0}
-  .modal .corner.tr{top:16px;right:16px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
-  .modal .corner.bl{bottom:16px;left:16px;border-right:0;border-top:0;border-radius:0 0 0 6px}
-  .modal .corner.br{bottom:16px;right:16px;border-left:0;border-top:0;border-radius:0 0 6px 0}
-  /* area di tocco 44x44, simbolo nella stessa posizione di prima */
+  /* --- Atomo: pulsante chiudi × (area di tocco 44x44, simbolo nella stessa posizione di prima) --- */
   .modal .x{position:absolute;top:4px;right:7px;width:44px;height:44px;padding:0;
-    display:flex;align-items:center;justify-content:center;border:0;background:none;font-size:24px;
+    display:flex;align-items:center;justify-content:center;border:0;background:none;font-size:var(--fs-close);
     color:var(--muted);cursor:pointer;line-height:1;z-index:2}
   /* anello di focus della stessa misura di prima (26x26), non dell'area di tocco */
   .modal .x:focus-visible{outline:none}
   .modal .x:focus-visible::after{content:"";position:absolute;inset:9px;
     outline:auto 1px;outline:-webkit-focus-ring-color auto 1px}
-  .modal .big{width:172px;height:172px;border-radius:50%;margin:4px auto 16px;position:relative;
-    background:var(--frame);box-shadow:0 12px 24px -8px rgba(60,45,20,.5)}
-  .modal .big img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;
-    box-shadow:inset 0 2px 12px rgba(40,28,10,.5)}
-  .modal h2{font-family:'Cormorant Garamond',serif;text-align:center;font-weight:700;font-size:29px;
-    margin:0 0 18px;line-height:1.1;color:#26200f}
-  .modal h2.sp{color:var(--wine)}
+
+  /* --- Atomo: angolo dorato della cornice --- */
+  .modal .corner{position:absolute;width:16px;height:16px;border:1.4px solid rgba(var(--gold-rgb),.5);
+    pointer-events:none;opacity:.85}
+  .modal .corner.tl{top:16px;left:16px;border-right:0;border-bottom:0;border-radius:6px 0 0 0}
+  .modal .corner.tr{top:16px;right:16px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
+  .modal .corner.bl{bottom:16px;left:16px;border-right:0;border-top:0;border-radius:0 0 0 6px}
+  .modal .corner.br{bottom:16px;right:16px;border-left:0;border-top:0;border-radius:0 0 6px 0}
+
+  /* --- Atomo: fregio oro sotto il titolo --- */
   .modal h2::after{content:"";display:block;width:54px;height:2px;margin:13px auto 0;
     background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-  .body p{font-size:19px;line-height:1.7;color:#3c3424;margin:0 0 12px}
-  .body p.vital{font-size:18px;margin:0 0 6px}
-  .body p.sep-top{margin-top:18px;padding-top:14px;border-top:1px solid rgba(124,106,42,.3)}
-  .body p.vital .g{color:var(--gold-d);margin-right:8px;font-size:13px;vertical-align:1px}
-  .body p.vital strong{letter-spacing:.03em}
-  .body p:first-child{margin-top:0}
-  .body p:last-child{margin-bottom:0}
-  .body strong{color:#26200f;font-weight:600}
 
-  /* popup crediti */
+  /* --- Atomo: glifo ✦ † delle righe Nato/Morto --- */
+  .body p.vital .g{color:var(--gold-d);margin-right:8px;font-size:var(--fs-glyph);vertical-align:1px}
+
+  /* --- Atomi: link --- */
   .credits-link{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;
     font-weight:700;text-decoration:underline;text-underline-offset:2px}
   .credits-link:hover{color:var(--wine)}
-  .modal.wide{width:min(940px,94vw);padding:36px 40px 34px}
-  .credits-row{display:flex;gap:32px;align-items:center}
-  .credits-row .credimg{flex:0 0 372px;background:#f8f1e0;padding:10px;
-    border:1px solid var(--card-edge);border-radius:14px;
-    box-shadow:0 10px 26px -12px var(--shadow),0 2px 6px -3px var(--shadow)}
-  .credits-row .credimg img{width:100%;height:auto;display:block;border-radius:8px}
-  .credits-row .credits-txt{flex:1;min-width:0}
-  .credits-row h2{text-align:left;font-size:32px;margin-bottom:16px}
-  .credits-row h2::after{margin:14px 0 0}
-  .credits-txt .body p{font-size:18px;line-height:1.62}
-  .cred-people{border-top:1px solid var(--card-edge);margin-top:18px;padding-top:16px}
-  .cred-people p{margin:0 0 13px}
-  .cred-people p:last-child{margin-bottom:0}
   .body a{color:var(--wine);text-decoration:underline;text-underline-offset:2px}
 
-  /* testo solo per screen reader */
+  /* --- Atomo: testo solo per screen reader --- */
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
     clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-  .t-mob{display:none}
-  .t-full{display:block;transform:translateY(3px)}
-  /* ottimizzazioni tablet/mobile - non influiscono sul desktop */
+  /* =================== 3. MOLECOLE =================== */
+
+  /* --- Molecola: marchio (logo + titolo) --- */
+  .brand{display:flex;align-items:center;gap:14px;min-width:0}
+  @media (max-width:640px){
+    .brand{width:100%;justify-content:center;text-align:center;gap:8px}
+  }
+
+  /* --- Molecola: card persona (ritratto, nome, date, badge, icona), template card(id) --- */
+  .card{width:var(--card-w);background:var(--paper);
+    border:1px solid var(--card-edge);border-radius:var(--r-card);padding:18px 14px 15px;text-align:center;
+    position:relative;z-index:2;cursor:pointer;
+    box-shadow:var(--sh-card);
+    transition:transform var(--t-card),box-shadow var(--t-card),border-color var(--t-card)}
+  .card:hover{transform:translateY(var(--lift));border-color:var(--gold);
+    box-shadow:var(--sh-card-hover)}
+  /* variante moglie: fondo rosato e filo vino in alto */
+  .card.sp{background:var(--paper-wife)}
+  .card.sp::before{content:"";position:absolute;top:0;left:16px;right:16px;height:3px;border-radius:0 0 3px 3px;
+    background:linear-gradient(90deg,transparent,rgba(var(--wine-rgb),.55),transparent)}
+  .card:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+
+  /* --- Molecola: titolo della scheda (nome + fregio) --- */
+  .modal h2{font-family:var(--font-heading);text-align:center;font-weight:700;font-size:var(--fs-modal-title);
+    margin:0 0 18px;line-height:1.1;color:var(--ink-strong)}
+  .modal h2.sp{color:var(--wine)}
+
+  /* --- Molecola: testo della scheda (biografia, filetto, righe Nato/Morto), template renderBody() --- */
+  .body p{font-size:var(--fs-text);line-height:var(--lh-text);color:var(--ink-soft);margin:0 0 12px}
+  .body p.vital{font-size:var(--fs-vital);margin:0 0 6px}
+  .body p.sep-top{margin-top:18px;padding-top:14px;border-top:1px solid rgba(var(--gold-rgb),.3)}
+  .body p.vital strong{letter-spacing:.03em}
+  .body p:first-child{margin-top:0}
+  .body p:last-child{margin-bottom:0}
+  .body strong{color:var(--ink-strong);font-weight:600}
+
+  /* --- Molecola: gruppo pulsanti zoom --- */
+  .ctrls{position:fixed;right:18px;bottom:18px;z-index:30;display:flex;flex-direction:column;gap:8px}
+
+  /* --- Molecola: targhetta in basso (testo + link crediti) --- */
+  .footer{position:fixed;left:20px;bottom:16px;z-index:30;
+    font-family:var(--font-ui);
+    font-size:var(--fs-footer);font-weight:500;color:var(--ink-plate);letter-spacing:.01em;
+    background:rgba(var(--parch-light-rgb),.78);border:1px solid rgba(var(--sepia-rgb),.28);
+    padding:8px 14px;border-radius:var(--r-plate);backdrop-filter:blur(3px);
+    box-shadow:var(--sh-plate)}
+  @media (max-width:640px){
+    .footer{position:static;flex:0 0 auto;width:100%;max-width:none;text-align:center;
+      line-height:1.35;border:0;border-top:1px solid rgba(var(--sepia-rgb),.3);
+      border-radius:0;background:rgba(var(--parch-light-rgb),.97);backdrop-filter:none;box-shadow:none;
+      padding:9px 14px calc(9px + env(safe-area-inset-bottom,0px))}
+  }
+
+  /* --- Molecola: foto con passe-partout (crediti) --- */
+  .credits-row .credimg{flex:0 0 372px;background:var(--paper);padding:10px;
+    border:1px solid var(--card-edge);border-radius:var(--r-photo);
+    box-shadow:var(--sh-photo)}
+  .credits-row .credimg img{width:100%;height:auto;display:block;border-radius:var(--r-photo-inner)}
+  @media (max-width:640px){
+    .credits-row .credimg{flex:0 0 auto;width:100%}
+  }
+
+  /* =================== 4. ORGANISMI =================== */
+
+  /* --- Organismo: barra in alto (marchio + suggerimento) --- */
+  header.topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;
+    justify-content:space-between;gap:18px;padding:10px 26px;
+    background:linear-gradient(180deg,rgba(var(--parch-rgb),.97),rgba(var(--parch-rgb),.55));
+    backdrop-filter:blur(7px);border-bottom:1px solid rgba(var(--sepia-rgb),.4);
+    box-shadow:var(--sh-bar)}
+
+  /* --- Organismo: albero (generazioni > coppie > card), template unit() e buildLevels() --- */
+  .tree{display:flex;flex-direction:column;align-items:center;gap:var(--tree-gap)}
+  .band{display:flex;justify-content:center;align-items:flex-start;gap:var(--band-gap)}
+  .couple{display:flex;align-items:flex-start;gap:var(--couple-gap);position:relative;z-index:2;padding:0 3px}
+  .pair{margin:0 var(--pair-gap)}
+
+  /* --- Organismo: scheda persona su velo scuro, template openModal(id) --- */
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(var(--overlay-rgb),.55);backdrop-filter:blur(5px);
+    display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;
+    overflow-y:auto;overscroll-behavior:contain;transition:opacity var(--t-overlay)}
+  .ov.open{opacity:1;pointer-events:auto}
+  .modal{width:min(470px,94vw);max-height:none;overflow:visible;margin:auto;position:relative;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(var(--glow-rgb),.7), rgba(var(--glow-rgb),0) 52%),
+      linear-gradient(180deg,var(--modal-top),var(--modal-bottom));
+    border:1px solid var(--card-edge);
+    border-radius:var(--r-modal);padding:32px 30px 28px;
+    box-shadow:var(--sh-modal)}
+  /* più larga per le biografie lunghe (sizeBioModal) */
+  .modal.roomy{width:min(660px,94vw);padding:36px 44px 32px}
+  .modal:focus{outline:none}
+  /* filetto interno della cornice */
+  .modal::before{content:"";position:absolute;inset:11px;border:1px solid rgba(var(--gold-rgb),.22);
+    border-radius:var(--r-modal-inner);pointer-events:none}
+  @media (max-width:640px){
+    .ov{padding:18px 12px;overflow-y:auto;overscroll-behavior:contain}
+    .modal{padding:24px 20px 22px;max-height:none;overflow:visible;margin:auto}
+    .modal::-webkit-scrollbar{display:none}
+    .modal.roomy{width:min(470px,94vw);padding:24px 20px 22px}
+  }
+
+  /* --- Organismo: scheda crediti (foto + testo + invito), template openCredits() --- */
+  .modal.wide{width:min(940px,94vw);padding:36px 40px 34px}
+  .credits-row{display:flex;gap:32px;align-items:center}
+  .credits-row .credits-txt{flex:1;min-width:0}
+  .credits-row h2{text-align:left;font-size:var(--fs-credits-title);margin-bottom:16px}
+  .credits-row h2::after{margin:14px 0 0}
+  .credits-txt .body p{font-size:var(--fs-credits-text);line-height:1.62}
+  .cred-people{border-top:1px solid var(--card-edge);margin-top:18px;padding-top:16px}
+  .cred-people p{margin:0 0 13px}
+  .cred-people p:last-child{margin-bottom:0}
+  @media (max-width:640px){
+    .modal.wide{width:min(470px,94vw)}
+    .credits-row{flex-direction:column;gap:16px}
+    .credits-row h2{text-align:center}
+    .credits-row h2::after{margin:13px auto 0}
+  }
+
+  /* =================== 5. TEMPLATE =================== */
+  /* Desktop: barra e targhetta fisse sopra l'area dell'albero, che si sposta e si ingrandisce.
+     Telefono: colonna barra / albero / targhetta, senza pulsanti zoom. */
+  .viewport{position:absolute;inset:0;z-index:1;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+  .viewport.drag{cursor:grabbing}
+  .content{position:absolute;top:0;left:0;transform-origin:0 0;padding:118px 140px 90px}
+  .content.anim{transition:transform .3s var(--ease-pan)}
   @media (max-width:1024px){
-    .brand h1{font-size:30px}
-    .hint{font-size:13px}
-    .wm{width:320px;max-width:36vw}
     .content{padding:104px 90px 80px}
   }
   @media (max-width:640px){
@@ -850,38 +1032,13 @@
     body{display:flex;flex-direction:column}
     .viewport{position:relative;inset:auto;flex:1 1 auto;min-height:0;-webkit-user-select:auto;user-select:auto}
     header.topbar{position:static;flex:0 0 auto;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px}
-    .brand{width:100%;justify-content:center;text-align:center;gap:8px}
-    .tree-ico{height:30px;width:auto}
-    .t-full{display:none}
-    .t-mob{display:block}
-    .brand h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-style:normal;
-      font-size:clamp(16px,5.3vw,24px);line-height:1.16;letter-spacing:.004em;text-align:center;white-space:nowrap}
-    .hint{display:none}
-    .wm{width:440px;max-width:74vw;left:50%;right:auto;transform:translate(-50%,-50%);opacity:.11}
     .content{padding:30px 28px 30px}
-    .footer{position:static;flex:0 0 auto;width:100%;max-width:none;text-align:center;
-      font-size:12px;line-height:1.35;border:0;border-top:1px solid rgba(120,95,55,.3);
-      border-radius:0;background:rgba(247,240,221,.97);backdrop-filter:none;box-shadow:none;
-      padding:9px 14px calc(9px + env(safe-area-inset-bottom,0px))}
     .ctrls{display:none}
-    .ctrls button{width:46px;height:46px;font-size:21px}
-    .ov{padding:18px 12px;overflow-y:auto;overscroll-behavior:contain}
-    .modal{padding:24px 20px 22px;max-height:none;overflow:visible;margin:auto}
-    .modal::-webkit-scrollbar{display:none}
-    .modal h2{font-size:24px}
-    .modal .big{width:140px;height:140px}
-    .body p{font-size:16px;line-height:1.6}
-    .modal.wide{width:min(470px,94vw)}
-    .modal.roomy{width:min(470px,94vw);padding:24px 20px 22px}
-    .credits-row{flex-direction:column;gap:16px}
-    .credits-row .credimg{flex:0 0 auto;width:100%}
-    .credits-row h2{text-align:center}
-    .credits-row h2::after{margin:13px auto 0}
   }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
-      transition-duration:.001ms !important;scroll-behavior:auto !important}
-  }
+
+  /* =================== 6. PAGINA =================== */
+  /* Nessuno stile proprio: la pagina è il template riempito con i contenuti reali, cioè i dati
+     PEOPLE (persone), TREE (legami) e POP (ritratti con la variante pop) nello script. */
 </style>
 </head>
 <body>
@@ -916,6 +1073,7 @@
 <footer class="footer">Copyright 2026. <button class="credits-link" onclick="openCredits()">Realizzato da Luca Rinonapoli e Filippo Sallusto</button></footer>
 
 <script>
+// Pagina: i contenuti reali, persone (PEOPLE) e legami (TREE)
 const PEOPLE={"nicola-rino": {"id": "nicola-rino", "name": "Nicola Rino", "sp": false, "y1": "?", "y2": "?", "body": "Mastro d'atti del Sacro Regio Consiglio\n\nNato: ???\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/nicola-rino.webp"}, "cristina-napoli": {"id": "cristina-napoli", "name": "Cristina Napoli", "sp": true, "y1": "?", "y2": "?", "body": "Nata: ???\nMorta: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/cristina-napoli.webp"}, "francesco-rinonapoli": {"id": "francesco-rinonapoli", "name": "Francesco Rinonapoli", "sp": false, "y1": "?", "y2": "1825", "body": "Mastro d'atti del Sacro Regio Consiglio\n\nNato: ???\nMorto: 1825", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/francesco-rinonapoli.webp"}, "raffaela-quaranta": {"id": "raffaela-quaranta", "name": "Raffaela Quaranta (Rachele)", "sp": true, "y1": "?", "y2": "?", "body": "Figlia di Marcantonio, maestro d'atti S.R.C.\n\nNata: ???\nMorta: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/raffaela-quaranta.webp"}, "giuseppe-ferdinando-rinonapoli": {"id": "giuseppe-ferdinando-rinonapoli", "name": "Giuseppe Ferdinando Rinonapoli", "sp": false, "y1": "1784", "y2": "1871", "body": "Avvocato. Il quadro è stato realizzato dal pittore Brandi, docente dell'Accademia Belle Arti di Napoli, partendo da un ritratto disegnato da suo figlio Michele Rinonapoli. Domiciliato in Vico S.Maria del Refugio\n\nNato: 08/01/1784\nMorto: 13/01/1871", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/giuseppe-ferdinando-rinonapoli.webp"}, "maria-antonia-fiore": {"id": "maria-antonia-fiore", "name": "Maria Antonia Fiore", "sp": true, "y1": "1782", "y2": "1857", "body": "Figlia di Nicola e Mariantonia Pennella\n\nNata: 22/01/1782\nMorta: 28/12/1857", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/maria-antonia-fiore.webp"}, "raffaele-rinonapoli": {"id": "raffaele-rinonapoli", "name": "Raffaele Rinonapoli", "sp": false, "y1": "1781", "y2": "1812", "body": "Mastro d'atti del Sacro Regio Consiglio\n\nNato: 1781\nMorto: 1812", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/raffaele-rinonapoli.webp"}, "gabriele-rinonapoli": {"id": "gabriele-rinonapoli", "name": "Gabriele Rinonapoli", "sp": false, "y1": "1812", "y2": "1896", "body": "Parroco di S. Maria Apparente\nProfessore di filosofia e diritto\n\nNato: 30/05/1812\nMorto: 11/01/1896", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/gabriele-rinonapoli.webp"}, "michele-rinonapoli": {"id": "michele-rinonapoli", "name": "Michele Rinonapoli", "sp": false, "y1": "1818", "y2": "1907", "body": "Professore di matematica e fisica alla Nunziatella e astronomo alla Reale Specola di Capodimonte (poi Osservatorio astronomico di Capodimonte). Porta le decorazioni di San Maurizio al Lazzaro; accademico pontaniano, ne fu anche segretario.\n\nL'originale di questo quadro è del pittore Filippo De Falco (1852-1926), Conservatore e Ispettore dell'Istituto di Belle Arti di Napoli, figlio di Carlo, ritrattista ufficiale dei Borbone. Apparteneva al primogenito Michele Rinonapoli.\n\nUmberto Rinonapoli, per aiutare il pittore Brandi, gli fece fare la copia e poi anche sviluppare il quadro del padre.\n\nNato: 18/02/1818\nMorto: 01/09/1907 in via Ponte di Chiaia, 95", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/michele-rinonapoli.webp"}, "carmela-rinonapoli-1825": {"id": "carmela-rinonapoli-1825", "name": "Carmela Rinonapoli", "sp": false, "y1": "1825", "y2": "?", "body": "Nata: 1825\nMorta: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/carmela-rinonapoli-1825.webp"}, "concetta-de-cristofaro": {"id": "concetta-de-cristofaro", "name": "Concetta De Cristofaro", "sp": true, "y1": "1827", "y2": "1897", "body": "Figlia di Don Giuseppe, Capo Dipartimento del Ministero di Polizia a Napoli e di Raffaela De Paolis.\n\nNata: 09/07/1827\nMorta: 21/01/1897", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/concetta-de-cristofaro.webp"}, "anna-rinonapoli": {"id": "anna-rinonapoli", "name": "Anna Rinonapoli", "sp": false, "y1": "1851", "y2": "1921", "body": "Sposata con Michele Attolini, nobile di Basilicata\n\nNata: 22/04/1851 a Napoli\nMorta: ??/08/1921 a Taranto", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/anna-rinonapoli.webp"}, "giuseppe-rinonapoli": {"id": "giuseppe-rinonapoli", "name": "Giuseppe Rinonapoli", "sp": false, "y1": "1853", "y2": "1931", "body": "Ingegnere, Professore di disegno nel Regio Istituto delle Belle Arti di Napoli.\nÈ stato uno dei progettisti della Funicolare di Chiaia.\n\nPrimo matrimonio con Amalia Carbone (a S. Ferdinando il 06/03/1882); secondo con Genieffa Emma Gioia (1887).\n\nQuesto quadro è stato fatto dal pittore Brandi, che ha realizzato anche quello della moglie. Riposa insieme al padre al Recinto degli uomini illustri a Napoli (Congrega Monte Verginella).\n\nNato: 13/05/1853 a Napoli (Vico 2° S. Giacomo n° 9\nMorto: 19/03/1931 a Napoli", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/giuseppe-rinonapoli.webp"}, "emmanuele-rinonapoli": {"id": "emmanuele-rinonapoli", "name": "Emmanuele Rinonapoli", "sp": false, "y1": "1858", "y2": "1932", "body": "Medico chirurgo. Dal 1887 fu medico condotto nel comune di Collarmele, dove abitò in via del Popolo. I risultati delle sue ricerche e il successo dei suoi interventi chirurgici, alcuni di carattere pionieristico, giunsero all'attenzione di riviste e accademie internazionali. Per i suoi meriti di scienziato fu nominato socio corrispondente della Reale Accademia Medico-Chirurgica di Napoli. Nel 1888 il vice segretario dell'Accademia, Francesco Frusci, scrisse di lui: «Un premio al D.r Rinonapoli parmi debba servire di incoraggiamento ai medici condotti, dimostrando ad essi come, pur nella loro modesta posizione, possano riuscire utili non solo all'università ma anche alla scienza e divenir meritevoli di encomio e di ricordanza.» Nel 2026 il Comune di Collarmele gli ha dedicato una targa in via del Popolo.\n\nNato: 09/02/1858 a Santa Anastasia (sotto il Vesuvio)\nMorto: 1932", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/emmanuele-rinonapoli.webp"}, "vincenzo-rinonapoli": {"id": "vincenzo-rinonapoli", "name": "Vincenzo Rinonapoli", "sp": false, "y1": "1860", "y2": "?", "body": "Nato: 29/06/1860\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/vincenzo-rinonapoli.webp"}, "giovanni-rinonapoli": {"id": "giovanni-rinonapoli", "name": "Giovanni Rinonapoli", "sp": false, "y1": "1863", "y2": "?", "body": "Impiegato all'Arsenale della Regia Marina\n\nNato: 08/02/1863\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/giovanni-rinonapoli.webp"}, "luigi-rinonapoli": {"id": "luigi-rinonapoli", "name": "Luigi Rinonapoli", "sp": false, "y1": "1865", "y2": "?", "body": "Era il gemello di Carmela\n\nNato: 02/02/1865\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/luigi-rinonapoli.webp"}, "carmela-rinonapoli-1865": {"id": "carmela-rinonapoli-1865", "name": "Carmela Rinonapoli", "sp": false, "y1": "1865", "y2": "1867", "body": "Nata: 02/02/1865\nMorta: 1867", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/carmela-rinonapoli-1865.webp"}, "genieffa-emma-gioia": {"id": "genieffa-emma-gioia", "name": "Genieffa Emma Gioia (detta Emma)", "sp": true, "y1": "1865", "y2": "1962", "body": "Nata: 28/05/1865 a Gaeta da Don Lorenzo Gioia e Civita Giordano (Civita, nonostante il cognome, veniva da una famiglia ducale di Capua, secondo una notizia di Claudia, figlia di Michele.)\nSi sposò con Giuseppe nel Duomo di Gaeta il 28/05/1887. I Gioia possedevano un palazzo di origine medievale che adibivano parzialmente ad albergo. Lì fu ospitato Giuseppe Mazzini quando, presa Roma il 20/09/1870, fu liberato dal carcere.\nMorta: 20/09/1962 a Roma, a casa del figlio Michele, alla veneranda età di 97 anni e 4 mesi.", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/genieffa-emma-gioia.webp"}, "ettore-rinonapoli": {"id": "ettore-rinonapoli", "name": "Ettore Rinonapoli", "sp": false, "y1": "1879", "y2": "1917", "body": "Figlio di primo letto di Giuseppe ed Amalia Carbone, legittimato con il loro matrimonio (1882).\n\nNato: 28/07/1879\nMorto: 1917 (malattia di guerra)", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/ettore-rinonapoli.webp"}, "ines-rinonapoli": {"id": "ines-rinonapoli", "name": "Ines Rinonapoli", "sp": false, "y1": "?", "y2": "†", "body": "Nata: ???\nMorta: Tenera età", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/ines-rinonapoli.webp"}, "michele-rinonapoli-jr": {"id": "michele-rinonapoli-jr", "name": "Michele Rinonapoli", "sp": false, "y1": "1889", "y2": "1959", "body": "Matematico e buon cultore di chitarra classica.\n\nNato: 28/12/1889 a Napoli\nMorto: 23/05/1959 a Roma", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/michele-rinonapoli-jr.webp"}, "gino-rinonapoli": {"id": "gino-rinonapoli", "name": "Gino Rinonapoli", "sp": false, "y1": "?", "y2": "†", "body": "Nato: ???\nMorto: Tenera età", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/gino-rinonapoli.webp"}, "umberto-rinonapoli": {"id": "umberto-rinonapoli", "name": "Umberto Rinonapoli", "sp": false, "y1": "1892", "y2": "1983", "body": "Nato: 24/06/1892 a Napoli\nMorto: 06/02/1983 a Milano\nÈ stato un economista, pubblicista, direttore della Camera di Commercio di Bari fino al 1939.", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/umberto-rinonapoli.webp"}, "bianca-rinonapoli": {"id": "bianca-rinonapoli", "name": "Bianca Rinonapoli", "sp": false, "y1": "?", "y2": "†", "body": "Nata: ???\nMorta: Tenera età", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/bianca-rinonapoli.webp"}, "maria-rinonapoli": {"id": "maria-rinonapoli", "name": "Maria Rinonapoli", "sp": false, "y1": "1896", "y2": "1948", "body": "Nata: 1896 a Napoli\nMorta: 1948\nConiugata Gambardella, non ebbe figli. Aveva un titolo di studio e lavorava in ambito economico, aveva una personalità frizzante.", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/maria-rinonapoli.webp"}, "renato-rinonapoli": {"id": "renato-rinonapoli", "name": "Renato Rinonapoli", "sp": false, "y1": "1897", "y2": "1957", "body": "Ispettore delle Assicurazioni Generali. Coniugato con Caterina Gerace.\n\nNato: 29/04/1897\nMorto: 23/12/1957", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/renato-rinonapoli.webp"}, "guido-rinonapoli": {"id": "guido-rinonapoli", "name": "Guido Rinonapoli", "sp": false, "y1": "?", "y2": "?", "body": "Nato: ???\nMorto: ???", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/guido-rinonapoli.webp"}, "emanuele-rinonapoli": {"id": "emanuele-rinonapoli", "name": "Emanuele Rinonapoli", "sp": false, "y1": "1904", "y2": "1985", "body": "Collaboratore degli ufficiali giudiziari.\n\nNato: 23/09/1904 a S. Anastasia\nMorto: 1985", "img": "https://raw.githubusercontent.com/lvcar/albero_genealogico/main/images/emanuele-rinonapoli.webp"}};
 const TREE={"p": "nicola-rino", "s": "cristina-napoli", "c": [{"p": "francesco-rinonapoli", "s": "raffaela-quaranta", "c": [{"p": "giuseppe-ferdinando-rinonapoli", "s": "maria-antonia-fiore", "c": [{"p": "raffaele-rinonapoli"}, {"p": "gabriele-rinonapoli"}, {"p": "michele-rinonapoli", "s": "concetta-de-cristofaro", "c": [{"p": "anna-rinonapoli"}, {"p": "giuseppe-rinonapoli", "s": "genieffa-emma-gioia", "c": [{"p": "ettore-rinonapoli"}, {"p": "ines-rinonapoli"}, {"p": "michele-rinonapoli-jr"}, {"p": "gino-rinonapoli"}, {"p": "umberto-rinonapoli"}, {"p": "bianca-rinonapoli"}, {"p": "maria-rinonapoli"}, {"p": "renato-rinonapoli"}, {"p": "guido-rinonapoli"}, {"p": "emanuele-rinonapoli"}]}, {"p": "emmanuele-rinonapoli"}, {"p": "vincenzo-rinonapoli"}, {"p": "giovanni-rinonapoli"}, {"p": "luigi-rinonapoli"}, {"p": "carmela-rinonapoli-1865"}]}, {"p": "carmela-rinonapoli-1825"}]}]}]};
 const tree=document.getElementById('tree'),links=document.getElementById('links'),
@@ -930,6 +1088,7 @@ const RAW='https://raw.githubusercontent.com/lvcar/albero_genealogico/main/';
 // ritratti con un dettaglio che esce dal cerchio (l'ombrellino di Maria Antonia)
 const POP=new Set(['maria-antonia-fiore']);
 const SAME_ORIGIN=/(^|\.)lucarinonapoli\.com$/.test(location.hostname);
+// Atomo: ritratto (anello e variante pop sono nel CSS)
 function imgTag(u,alt){
   const s=SAME_ORIGIN&&u.startsWith(RAW)?u.slice(RAW.length):u;
   return `<img src="${s}" alt="${alt}"${s!==u?` onerror="this.onerror=null;this.src='${u}'"`:''}>`;
@@ -953,7 +1112,9 @@ function cardLabel(id,story){
   return parts.join(', ');
 }
 document.getElementById('nPeople').textContent=Object.keys(PEOPLE).length;
+// Atomo: icona a libretto della biografia
 const BOOK='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.2c2.6-.8 6.2-.5 9 1.1 2.8-1.6 6.4-1.9 9-1.1v12.9c-2.6-.8-6.2-.5-9 1.1-2.8-1.6-6.4-1.9-9-1.1V5.2z"/><path d="M12 6.3v12.9"/></svg>';
+// Molecola: card persona (atomi: ritratto, nome, date, badge, icona)
 function card(id){
   const p=PEOPLE[id];
   const story=hasStory(p);
@@ -970,6 +1131,7 @@ function card(id){
     <div class="nm">${p.name}</div>${yr?`<div class="yr">${yr}</div>`:''}${story?`<span class="story" title="C'è una biografia">${BOOK}</span>`:''}`;
   return el;
 }
+// Organismo albero: coppia (card + legame + card)
 function unit(node){
   const couple=document.createElement('div'); couple.className='couple';
   couple.appendChild(card(node.p));
@@ -999,6 +1161,7 @@ function cx(el){const r=el.getBoundingClientRect(),c=content.getBoundingClientRe
 function cyTop(el){const r=el.getBoundingClientRect(),c=content.getBoundingClientRect();return (r.top-c.top)/scale}
 function cyBot(el){const r=el.getBoundingClientRect(),c=content.getBoundingClientRect();return (r.bottom-c.top)/scale}
 
+// Organismo albero: connettori, pallini e rombo del legame
 function drawLinks(){
   const segs=[], dots=[], diamonds=[];
   const R=12; // raggio gomiti
@@ -1062,7 +1225,7 @@ function drawLinks(){
   const dotEls=dots.map(d=>`<circle cx="${d.x}" cy="${d.y}" r="3" fill="var(--line)"/>`).join('');
   const diaEls=diamonds.map(d=>
     `<path d="M ${d.x} ${d.y-5} L ${d.x+5} ${d.y} L ${d.x} ${d.y+5} L ${d.x-5} ${d.y} Z"
-       fill="#f6efde" stroke="var(--wine)" stroke-width="1.6"/>`).join('');
+       fill="var(--card)" stroke="var(--wine)" stroke-width="1.6"/>`).join('');
   links.innerHTML=path+dotEls+diaEls;
 }
 
@@ -1164,6 +1327,7 @@ document.getElementById('zin').onclick=()=>zoom(1.2);
 document.getElementById('zout').onclick=()=>zoom(0.83);
 document.getElementById('zfit').onclick=()=>fit();
 
+// Molecola: testo della scheda (biografia, filetto, righe Nato/Morto con glifo)
 function renderBody(t){
   const lines=t.split('\n').map(l=>l.trim()).filter(Boolean);
   let prev=null;
@@ -1182,6 +1346,7 @@ function renderBody(t){
   }).join('');
 }
 const ov=document.getElementById('ov'),modal=document.getElementById('modal'); let lastFocused=null;
+// Atomo: i quattro angoli dorati della cornice
 const CORNERS='<span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>';
 function sizeBioModal(){
   if(window.innerWidth<=640){ ov.scrollTop=0; return; }   // mobile invariato
@@ -1195,6 +1360,7 @@ function sizeBioModal(){
   }
   ov.scrollTop=0;
 }
+// Organismo: scheda persona
 function openModal(id){
   const p=PEOPLE[id]; lastFocused=document.activeElement;
   modal.classList.remove('wide','roomy'); modal.style.width='';
@@ -1206,6 +1372,7 @@ function openModal(id){
   sizeBioModal();
   modal.focus();
 }
+// Organismo: scheda crediti
 function openCredits(){
   lastFocused=document.activeElement; modal.classList.remove('roomy'); modal.classList.add('wide'); modal.style.width='';
   modal.innerHTML=`${CORNERS}<button class="x" onclick="closeModal()" aria-label="Chiudi">×</button>
